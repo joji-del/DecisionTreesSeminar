@@ -117,57 +117,6 @@ pip install numpy pandas matplotlib scikit-learn
      ```
    - График показывает, как критерий ошибки изменяется при различных порогах, помогая выбрать оптимальное разбиение.
 
-## Пример использования
-
-```python
-import numpy as np
-import pandas as pd
-from sklearn.datasets import load_boston
-
-# Загрузка данных
-boston = load_boston()
-df = pd.DataFrame(boston.data, columns=boston.feature_names)
-df['target'] = boston.target
-
-# Функция find_best_split (пример для регрессии)
-def find_best_split(X, y, task="regression"):
-    best_feature, best_threshold, best_score = None, None, float('inf')
-    n_samples, n_features = X.shape
-    
-    for feature in range(n_features):
-        thresholds = np.unique(X[:, feature])
-        for threshold in thresholds:
-            left_mask = X[:, feature] <= threshold
-            right_mask = ~left_mask
-            
-            if np.sum(left_mask) == 0 or np.sum(right_mask) == 0:
-                continue
-                
-            left_y, right_y = y[left_mask], y[right_mask]
-            
-            if task == "regression":
-                score = -(len(left_y)/n_samples) * np.var(left_y) - (len(right_y)/n_samples) * np.var(right_y)
-            else:  # classification
-                def gini(y):
-                    _, counts = np.unique(y, return_counts=True)
-                    p = counts / len(y)
-                    return 1 - np.sum(p**2)
-                score = -(len(left_y)/n_samples) * gini(left_y) - (len(right_y)/n_samples) * gini(right_y)
-            
-            if score < best_score:
-                best_score = score
-                best_feature = feature
-                best_threshold = threshold
-    
-    return best_feature, best_threshold, best_score
-
-# Применение к данным
-X = df[boston.feature_names].values
-y = df['target'].values
-feature_idx, threshold, score = find_best_split(X, y, task="regression")
-print(f"Лучший признак: {boston.feature_names[feature_idx]}, Порог: {threshold}, Критерий: {score}")
-```
-
 
 ## Результаты
 
